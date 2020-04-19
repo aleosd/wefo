@@ -1,0 +1,18 @@
+[package]
+name = "wefo"
+version = "0.1.0"
+authors = ["Alex <osdalex@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+serde = { version = "*", features = ["derive"] }
+serde_derive = "*"
+reqwest = { version = "*", features = ["blocking", "json"] }
+
+[dependencies.confy]
+git = "https://github.com/rust-cli/confy"
+branch = "master"
+features = ["yaml_conf"]
+default-features = false
