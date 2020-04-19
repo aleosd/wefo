@@ -31,9 +31,11 @@ fn main() -> Result<(), Error> {
         city_id = config.city_id,
         api_key = config.openweathermap_api_key
     );
-    println!("{}", url);
     let response = reqwest::blocking::get(&url)?;
-    println!("{:?}", response);
+    if response.status() != 200 {
+        println!("Called url: {}", url);
+        println!("{:?}", response);
+    }
 
     let users: WeatherForecast = response.json()?;
     println!("{:?}", users);
