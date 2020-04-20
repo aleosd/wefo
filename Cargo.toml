@@ -10,6 +10,8 @@ edition = "2018"
 serde = { version = "*", features = ["derive"] }
 serde_derive = "*"
 reqwest = { version = "*", features = ["blocking", "json"] }
+log = "*"
+chrono = "*"
 
 [dependencies.confy]
 git = "https://github.com/rust-cli/confy"
