@@ -12,7 +12,7 @@ impl log::Log for Logger {
     }
 
     fn log(&self, record: &Record) {
-        if record.target() != "wefo" {
+        if !record.target().starts_with("wefo") {
             return;
         }
         if self.enabled(record.metadata()) {
