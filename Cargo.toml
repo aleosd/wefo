@@ -12,6 +12,7 @@ serde_derive = "*"
 reqwest = { version = "*", features = ["blocking", "json"] }
 log = "*"
 chrono = "*"
+lazy_static = "*"
 
 [dependencies.confy]
 git = "https://github.com/rust-cli/confy"

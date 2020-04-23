@@ -3,6 +3,9 @@ extern crate serde;
 extern crate log;
 extern crate reqwest;
 extern crate serde_derive;
+extern crate lazy_static;
+extern crate chrono;
+
 
 use fc::base::Forecast;
 use log::LevelFilter;

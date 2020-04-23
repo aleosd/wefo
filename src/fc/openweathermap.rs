@@ -2,12 +2,28 @@ use super::super::configure;
 use super::super::utils;
 use super::base;
 use log::{debug, error};
+use chrono::{TimeZone, Local};
+use std::convert::TryInto;
 
-extern crate log;
-extern crate reqwest;
+use lazy_static::lazy_static;
 use reqwest::Error;
+use std::collections::HashMap;
 
 const DEGREE_SYMBOL: char = '\u{00B0}';
+const THERMOMETER_SYMBOL: char = '\u{1F321}';
+
+lazy_static! {
+    static ref ICON_TO_SYMBOL: HashMap<String, char> = {
+        let mut map = HashMap::new();
+        map.insert("01d".to_owned(), '\u{263C}');
+        map.insert("01n".to_owned(), '\u{263C}');
+        map.insert("02d".to_owned(), '\u{1F324}');
+        map.insert("02n".to_owned(), '\u{1F324}');
+        map.insert("03d".to_owned(), '\u{1F325}');
+        map.insert("03n".to_owned(), '\u{1F325}');
+        map
+    };
+}
 
 #[derive(Deserialize, Debug)]
 struct OpenWeatherForecast {
@@ -77,8 +93,11 @@ impl base::Forecast for OpenWeatherForecastRunner {
             debug!("Got results from {}", url);
             let forecast_data: OpenWeatherForecast = response.json()?;
             println!(
-                "{}\nTemperature: {}{}C, Feels like: {}{}C\nWind: {}m/s",
+                "Collected at {}\n{}  {}\n{} Temperature: {}{}C, Feels like: {}{}C\nWind: {}m/s",
+                chrono::Utc.timestamp(forecast_data.dt.try_into().unwrap(), 0).with_timezone(&Local),
+                ICON_TO_SYMBOL.get(&forecast_data.weather[0].icon).unwrap(),
                 utils::uppercase_first_letter(&forecast_data.weather[0].description),
+                THERMOMETER_SYMBOL,
                 forecast_data.main.temp,
                 DEGREE_SYMBOL,
                 forecast_data.main.feels_like,
