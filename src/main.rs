@@ -12,6 +12,7 @@ use std::str::FromStr;
 mod configure;
 mod fc;
 mod logger;
+mod utils;
 
 fn main() -> Result<(), Error> {
     let config = configure::load_config(None).unwrap();
@@ -19,7 +20,9 @@ fn main() -> Result<(), Error> {
     log::set_max_level(
         LevelFilter::from_str(&config.system_config.log_level).unwrap_or(LevelFilter::Warn),
     );
-    let forecaster = fc::openweathermap::OpenWeatherForecastRunner {};
-    forecaster.current(config)?;
+    let forecaster = fc::openweathermap::OpenWeatherForecastRunner {
+        config: config,
+    };
+    forecaster.current()?;
     Ok(())
 }
