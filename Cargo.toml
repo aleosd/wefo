@@ -13,6 +13,7 @@ reqwest = { version = "*", features = ["blocking", "json"] }
 log = "*"
 chrono = "*"
 lazy_static = "*"
+clap = { git = "https://github.com/clap-rs/clap/" }
 
 [dependencies.confy]
 git = "https://github.com/rust-cli/confy"
