@@ -59,7 +59,7 @@ fn main() -> Result<(), Error> {
     let config = configure::load_config(None).unwrap();
     let args = parse_args();
 
-    // setup config
+    // setup logging
     log::set_logger(&logger::LOGGER).unwrap();
     let log_level: String;
     if args.is_present("log-level") {

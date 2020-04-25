@@ -1,7 +1,7 @@
 use super::super::configure;
 use super::super::utils;
 use super::base;
-use log::{debug, info, error};
+use log::{debug, error};
 use chrono::{TimeZone, Local};
 use std::convert::TryInto;
 
