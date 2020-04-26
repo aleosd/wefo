@@ -1,8 +1,8 @@
 use super::super::configure;
 use super::super::utils;
 use super::base;
+use chrono::{Local, TimeZone};
 use log::debug;
-use chrono::{TimeZone, Local};
 use std::convert::TryInto;
 
 use lazy_static::lazy_static;
@@ -39,9 +39,8 @@ lazy_static! {
 #[derive(Deserialize, Debug)]
 struct Days5Forecast {
     cnt: i8,
-    list: Vec<OpenWeatherForecast>
+    list: Vec<OpenWeatherForecast>,
 }
-
 
 #[derive(Deserialize, Debug)]
 struct OpenWeatherForecast {
@@ -54,7 +53,11 @@ struct OpenWeatherForecast {
 
 impl OpenWeatherForecast {
     pub fn fc_date(&self) -> String {
-        return utils::format_date(chrono::Utc.timestamp(self.dt.try_into().unwrap(), 0).with_timezone(&Local));
+        return utils::format_date(
+            chrono::Utc
+                .timestamp(self.dt.try_into().unwrap(), 0)
+                .with_timezone(&Local),
+        );
     }
 }
 
@@ -71,18 +74,29 @@ struct OpenWeatherCurrent {
 
 impl OpenWeatherCurrent {
     fn updated_at(&self) -> String {
-        return utils::format_date(chrono::Utc.timestamp(self.dt.try_into().unwrap(), 0).with_timezone(&Local));
+        return utils::format_date(
+            chrono::Utc
+                .timestamp(self.dt.try_into().unwrap(), 0)
+                .with_timezone(&Local),
+        );
     }
 
     fn sunrise(&self) -> String {
-        return utils::format_date(chrono::Utc.timestamp(self.sys.sunrise.try_into().unwrap(), 0).with_timezone(&Local));
+        return utils::format_date(
+            chrono::Utc
+                .timestamp(self.sys.sunrise.try_into().unwrap(), 0)
+                .with_timezone(&Local),
+        );
     }
 
     fn sunset(&self) -> String {
-        return utils::format_date(chrono::Utc.timestamp(self.sys.sunset.try_into().unwrap(), 0).with_timezone(&Local));
+        return utils::format_date(
+            chrono::Utc
+                .timestamp(self.sys.sunset.try_into().unwrap(), 0)
+                .with_timezone(&Local),
+        );
     }
 }
-
 
 #[derive(Deserialize, Debug)]
 struct Main {
@@ -139,7 +153,9 @@ impl OpenWeatherForecastRunner {
         println!(
             "{}\n{}  {}\nTemperature: {}{}C, feels like: {}{}C\nWind: {}m/s\n",
             forecast_data.fc_date(),
-            ICON_TO_SYMBOL.get(&forecast_data.weather[0].icon).unwrap_or(&'\u{0020}'),
+            ICON_TO_SYMBOL
+                .get(&forecast_data.weather[0].icon)
+                .unwrap_or(&'\u{0020}'),
             utils::uppercase_first_letter(&forecast_data.weather[0].description),
             forecast_data.main.temp,
             DEGREE_SYMBOL,
@@ -194,7 +210,7 @@ impl base::Forecast for OpenWeatherForecastRunner {
             } else {
                 for item in forecast_data.list.iter() {
                     self.print_forecast_item(item);
-                } 
+                }
             }
         }
         Ok(())
