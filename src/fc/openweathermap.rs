@@ -52,6 +52,11 @@ struct OpenWeatherForecast {
     dt_txt: String,
 }
 
+impl OpenWeatherForecast {
+    pub fn fc_date(&self) -> String {
+        return utils::format_date(chrono::Utc.timestamp(self.dt.try_into().unwrap(), 0).with_timezone(&Local));
+    }
+}
 
 #[derive(Deserialize, Debug)]
 struct OpenWeatherCurrent {
@@ -63,6 +68,21 @@ struct OpenWeatherCurrent {
     wind: Wind,
     sys: Sys,
 }
+
+impl OpenWeatherCurrent {
+    fn updated_at(&self) -> String {
+        return utils::format_date(chrono::Utc.timestamp(self.dt.try_into().unwrap(), 0).with_timezone(&Local));
+    }
+
+    fn sunrise(&self) -> String {
+        return utils::format_date(chrono::Utc.timestamp(self.sys.sunrise.try_into().unwrap(), 0).with_timezone(&Local));
+    }
+
+    fn sunset(&self) -> String {
+        return utils::format_date(chrono::Utc.timestamp(self.sys.sunset.try_into().unwrap(), 0).with_timezone(&Local));
+    }
+}
+
 
 #[derive(Deserialize, Debug)]
 struct Main {
@@ -99,10 +119,26 @@ pub struct OpenWeatherForecastRunner {
 }
 
 impl OpenWeatherForecastRunner {
+    fn current_weather_url(&self) -> String {
+        return format!(
+            "https://api.openweathermap.org/data/2.5/weather?id={city_id}&appid={api_key}&units=metric",
+            city_id = self.config.city_id,
+            api_key = self.config.openweathermap_api_key
+        );
+    }
+
+    fn weather_forecast_url(&self) -> String {
+        return format!(
+            "https://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=metric",
+            city_id = self.config.city_id,
+            api_key = self.config.openweathermap_api_key
+        );
+    }
+
     fn print_forecast_item(&self, forecast_data: &OpenWeatherForecast) {
         println!(
-            "{}\n{}  {}\nTemperature: {}{}C, Feels like: {}{}C\nWind: {}m/s\n",
-            chrono::Utc.timestamp(forecast_data.dt.try_into().unwrap(), 0).with_timezone(&Local),
+            "{}\n{}  {}\nTemperature: {}{}C, feels like: {}{}C\nWind: {}m/s\n",
+            forecast_data.fc_date(),
             ICON_TO_SYMBOL.get(&forecast_data.weather[0].icon).unwrap_or(&'\u{0020}'),
             utils::uppercase_first_letter(&forecast_data.weather[0].description),
             forecast_data.main.temp,
@@ -116,11 +152,7 @@ impl OpenWeatherForecastRunner {
 
 impl base::Forecast for OpenWeatherForecastRunner {
     fn current(&self) -> Result<(), Error> {
-        let url = format!(
-            "https://api.openweathermap.org/data/2.5/weather?id={city_id}&appid={api_key}&units=metric",
-            city_id = self.config.city_id,
-            api_key = self.config.openweathermap_api_key
-        );
+        let url = self.current_weather_url();
         debug!("Requesting {}", url);
         let response = reqwest::blocking::get(&url)?;
         if response.status() != 200 {
@@ -129,8 +161,8 @@ impl base::Forecast for OpenWeatherForecastRunner {
             debug!("Got results from {}", url);
             let forecast_data: OpenWeatherCurrent = response.json()?;
             println!(
-                "Collected at {}\n{}  {}\nTemperature: {}{}C, Feels like: {}{}C\nWind: {}m/s",
-                chrono::Utc.timestamp(forecast_data.dt.try_into().unwrap(), 0).with_timezone(&Local),
+                "Updated at {}\n{}  {}\nTemperature: {}{}C, feels like: {}{}C\nWind: {}m/s\nSunrise: {}\nSunset: {}",
+                forecast_data.updated_at(),
                 ICON_TO_SYMBOL.get(&forecast_data.weather[0].icon).unwrap_or(&'\u{0020}'),
                 utils::uppercase_first_letter(&forecast_data.weather[0].description),
                 forecast_data.main.temp,
@@ -138,6 +170,8 @@ impl base::Forecast for OpenWeatherForecastRunner {
                 forecast_data.main.feels_like,
                 DEGREE_SYMBOL,
                 forecast_data.wind.speed,
+                forecast_data.sunrise(),
+                forecast_data.sunset()
             );
         }
         Ok(())
@@ -145,11 +179,7 @@ impl base::Forecast for OpenWeatherForecastRunner {
 
     fn day(&self, days_num: Option<usize>) -> Result<(), Error> {
         debug!("Collecting forecat...");
-        let url = format!(
-            "https://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=metric",
-            city_id = self.config.city_id,
-            api_key = self.config.openweathermap_api_key
-        );
+        let url = self.weather_forecast_url();
         debug!("Requesting {}", url);
         let response = reqwest::blocking::get(&url)?;
         if response.status() != 200 {
