@@ -1,7 +1,7 @@
 use super::super::configure;
 use super::super::utils;
 use super::base;
-use log::{debug, error};
+use log::debug;
 use chrono::{TimeZone, Local};
 use std::convert::TryInto;
 
@@ -98,6 +98,22 @@ pub struct OpenWeatherForecastRunner {
     pub config: configure::WeFoConfig,
 }
 
+impl OpenWeatherForecastRunner {
+    fn print_forecast_item(&self, forecast_data: &OpenWeatherForecast) {
+        println!(
+            "{}\n{}  {}\nTemperature: {}{}C, Feels like: {}{}C\nWind: {}m/s\n",
+            chrono::Utc.timestamp(forecast_data.dt.try_into().unwrap(), 0).with_timezone(&Local),
+            ICON_TO_SYMBOL.get(&forecast_data.weather[0].icon).unwrap_or(&'\u{0020}'),
+            utils::uppercase_first_letter(&forecast_data.weather[0].description),
+            forecast_data.main.temp,
+            DEGREE_SYMBOL,
+            forecast_data.main.feels_like,
+            DEGREE_SYMBOL,
+            forecast_data.wind.speed,
+        );
+    }
+}
+
 impl base::Forecast for OpenWeatherForecastRunner {
     fn current(&self) -> Result<(), Error> {
         let url = format!(
@@ -108,15 +124,7 @@ impl base::Forecast for OpenWeatherForecastRunner {
         debug!("Requesting {}", url);
         let response = reqwest::blocking::get(&url)?;
         if response.status() != 200 {
-            error!(
-                "Error while querying {}, response status {}",
-                url,
-                response.status()
-            );
-            match response.text() {
-                Err(err) => error!("Unable to parse response text: {}", err),
-                Ok(response_text) => error!("Response content is: {}", response_text),
-            }
+            self.log_response_error(response);
         } else {
             debug!("Got results from {}", url);
             let forecast_data: OpenWeatherCurrent = response.json()?;
@@ -135,7 +143,8 @@ impl base::Forecast for OpenWeatherForecastRunner {
         Ok(())
     }
 
-    fn day5(&self) -> Result<(), Error> {
+    fn day(&self, days_num: Option<usize>) -> Result<(), Error> {
+        debug!("Collecting forecat...");
         let url = format!(
             "https://api.openweathermap.org/data/2.5/forecast?id={city_id}&appid={api_key}&units=metric",
             city_id = self.config.city_id,
@@ -144,30 +153,18 @@ impl base::Forecast for OpenWeatherForecastRunner {
         debug!("Requesting {}", url);
         let response = reqwest::blocking::get(&url)?;
         if response.status() != 200 {
-            error!(
-                "Error while querying {}, response status {}",
-                url,
-                response.status()
-            );
-            match response.text() {
-                Err(err) => error!("Unable to parse response text: {}", err),
-                Ok(response_text) => error!("Response content is: {}", response_text),
-            }
+            self.log_response_error(response);
         } else {
             debug!("Got results from {}", url);
             let forecast_data: Days5Forecast = response.json()?;
-            for item in forecast_data.list.iter() {
-                println!(
-                    "{}\n{}  {}\nTemperature: {}{}C, Feels like: {}{}C\nWind: {}m/s\n",
-                    chrono::Utc.timestamp(item.dt.try_into().unwrap(), 0).with_timezone(&Local),
-                    ICON_TO_SYMBOL.get(&item.weather[0].icon).unwrap_or(&'\u{0020}'),
-                    utils::uppercase_first_letter(&item.weather[0].description),
-                    item.main.temp,
-                    DEGREE_SYMBOL,
-                    item.main.feels_like,
-                    DEGREE_SYMBOL,
-                    item.wind.speed,
-                );
+            if days_num.is_some() && days_num.unwrap() * 4 < forecast_data.list.len() {
+                for index in 0..days_num.unwrap() * 4 {
+                    self.print_forecast_item(&forecast_data.list[index]);
+                }
+            } else {
+                for item in forecast_data.list.iter() {
+                    self.print_forecast_item(item);
+                } 
             }
         }
         Ok(())

@@ -40,17 +40,18 @@ fn parse_args() -> clap::ArgMatches {
             .help("Set log level"),
     )
     .arg(
-        Arg::with_name("day5")
-            .long("day5")
-            .conflicts_with("daily")
-            .help("Show hourly forecast"),
+        Arg::with_name("day")
+            .short('d')
+            .long("day")
+            .conflicts_with("week")
+            .help("Show daily forecast"),
     )
     .arg(
-        Arg::with_name("daily")
-            .short('d')
-            .long("daily")
-            .conflicts_with("day5")
-            .help("Show daily forecast"),
+        Arg::with_name("week")
+            .short('w')
+            .long("week")
+            .conflicts_with("day")
+            .help("Show weekly forecast"),
     )
     .get_matches()
 }
@@ -76,8 +77,10 @@ fn main() -> Result<(), Error> {
         config: config,
     };
 
-    if args.is_present("day5") {
-        forecaster.day5()?;
+    if args.is_present("day") {
+        forecaster.day(Some(1))?;
+    } else if args.is_present("week") {
+        forecaster.day(Some(7))?;
     } else {
         forecaster.current()?;
     }
