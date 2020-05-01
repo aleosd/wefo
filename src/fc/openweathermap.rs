@@ -14,22 +14,22 @@ const DEGREE_SYMBOL: char = '\u{00B0}';
 lazy_static! {
     static ref ICON_TO_SYMBOL: HashMap<String, char> = {
         let mut map = HashMap::new();
-        map.insert("01d".to_owned(), '\u{263C}');
-        map.insert("01n".to_owned(), '\u{263C}');
+        map.insert("01d".to_owned(), '\u{1F323}');
+        map.insert("01n".to_owned(), '\u{1F316}');
         map.insert("02d".to_owned(), '\u{1F324}');
         map.insert("02n".to_owned(), '\u{1F324}');
         map.insert("03d".to_owned(), '\u{1F325}');
         map.insert("03n".to_owned(), '\u{1F325}');
-        map.insert("04d".to_owned(), '\u{2601}');
-        map.insert("04n".to_owned(), '\u{2601}');
+        map.insert("04d".to_owned(), '\u{1F325}');
+        map.insert("04n".to_owned(), '\u{1F325}');
         map.insert("09d".to_owned(), '\u{1F327}');
         map.insert("09n".to_owned(), '\u{1F327}');
         map.insert("10d".to_owned(), '\u{1F326}');
         map.insert("10n".to_owned(), '\u{1F326}');
         map.insert("11d".to_owned(), '\u{1F329}');
         map.insert("11n".to_owned(), '\u{1F329}');
-        map.insert("13d".to_owned(), '\u{2603}');
-        map.insert("13n".to_owned(), '\u{2603}');
+        map.insert("13d".to_owned(), '\u{2744}');
+        map.insert("13n".to_owned(), '\u{2744}');
         map.insert("50d".to_owned(), '\u{1F32B}');
         map.insert("50n".to_owned(), '\u{1F32B}');
         map
