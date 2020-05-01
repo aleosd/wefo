@@ -64,12 +64,17 @@ impl OpenWeatherForecast {
 #[derive(Deserialize, Debug)]
 struct OpenWeatherCurrent {
     name: String,
+    #[serde(default = "default_visibility")]
     visibility: u32,
     dt: u32,
     main: Main,
     weather: Vec<WeatherCondition>,
     wind: Wind,
     sys: Sys,
+}
+
+fn default_visibility() -> u32 {
+    0
 }
 
 impl OpenWeatherCurrent {
@@ -176,6 +181,7 @@ impl base::Forecast for OpenWeatherForecastRunner {
         } else {
             debug!("Got results from {}", url);
             let forecast_data: OpenWeatherCurrent = response.json()?;
+            debug!("Results for {} city", forecast_data.name);
             println!(
                 "Updated at {}\n{}  {}\nTemperature: {}{}C, feels like: {}{}C\nWind: {}m/s\nSunrise: {}\nSunset: {}",
                 forecast_data.updated_at(),

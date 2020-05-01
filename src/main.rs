@@ -8,7 +8,7 @@ extern crate chrono;
 
 
 use fc::base::Forecast;
-use log::LevelFilter;
+use log::{debug, LevelFilter};
 use reqwest::Error;
 use std::str::FromStr;
 use clap::{App, Arg};
@@ -53,11 +53,17 @@ fn parse_args() -> clap::ArgMatches {
             .conflicts_with("day")
             .help("Show weekly forecast"),
     )
+    .arg(
+        Arg::with_name("city")
+            .long("city")
+            .takes_value(true)
+            .help("Change default city_id"),
+    )
     .get_matches()
 }
 
 fn main() -> Result<(), Error> {
-    let config = configure::load_config(None).unwrap();
+    let mut config = configure::load_config(None).unwrap();
     let args = parse_args();
 
     // setup logging
@@ -71,6 +77,13 @@ fn main() -> Result<(), Error> {
     log::set_max_level(
         LevelFilter::from_str(&log_level).unwrap_or(LevelFilter::Warn),
     );
+
+    // update config from args
+    if args.is_present("city") {
+        let city_id = args.value_of("city").unwrap();
+        debug!("Got {} as a city_id from command line", city_id);
+        config.city_id = args.value_of("city").unwrap().parse().unwrap();
+    }
 
     // get forecast
     let forecaster = fc::openweathermap::OpenWeatherForecastRunner {
