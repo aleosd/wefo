@@ -5,6 +5,7 @@ extern crate reqwest;
 extern crate serde_derive;
 extern crate lazy_static;
 extern crate chrono;
+extern crate clap;
 
 
 use fc::base::Forecast;
@@ -19,8 +20,8 @@ mod logger;
 mod utils;
 
 fn parse_args() -> clap::ArgMatches {
-    return App::new("MyApp")
-    .version("0.1.0")
+    return App::new("Weather Forecast")
+    .version("0.1.1")
     .author("Osadchuk Aleksey <aleosd@gmail.com>")
     .about("Prints weather forecast to console")
     .arg(
@@ -28,7 +29,7 @@ fn parse_args() -> clap::ArgMatches {
             .short('c')
             .long("config")
             .value_name("FILE")
-            .help("Sets a custom config file")
+            .about("Sets a custom config file")
             .takes_value(true),
     )
     .arg(
@@ -37,27 +38,27 @@ fn parse_args() -> clap::ArgMatches {
             .long("log-level")
             .takes_value(true)
             .possible_values(&["info", "debug", "warn", "error"])
-            .help("Set log level"),
+            .about("Set log level"),
     )
     .arg(
         Arg::with_name("day")
             .short('d')
             .long("day")
             .conflicts_with("week")
-            .help("Show daily forecast"),
+            .about("Show daily forecast"),
     )
     .arg(
         Arg::with_name("week")
             .short('w')
             .long("week")
             .conflicts_with("day")
-            .help("Show weekly forecast"),
+            .about("Show weekly forecast"),
     )
     .arg(
         Arg::with_name("city")
             .long("city")
             .takes_value(true)
-            .help("Change default city_id"),
+            .about("Change default city_id"),
     )
     .get_matches()
 }
@@ -80,7 +81,7 @@ fn main() -> Result<(), Error> {
 
     // update config from args
     if args.is_present("city") {
-        let city_id = args.value_of("city").unwrap();
+        let city_id: u32 = args.value_of_t_or_exit("city");
         debug!("Got {} as a city_id from command line", city_id);
         config.city_id = args.value_of("city").unwrap().parse().unwrap();
     }
