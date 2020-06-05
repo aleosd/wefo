@@ -14,7 +14,7 @@ const DEGREE_SYMBOL: char = '\u{00B0}';
 lazy_static! {
     static ref ICON_TO_SYMBOL: HashMap<String, char> = {
         let mut map = HashMap::new();
-        map.insert("01d".to_owned(), '\u{1F323}');
+        map.insert("01d".to_owned(), '\u{1F31E}');
         map.insert("01n".to_owned(), '\u{1F316}');
         map.insert("02d".to_owned(), '\u{1F324}');
         map.insert("02n".to_owned(), '\u{1F324}');
