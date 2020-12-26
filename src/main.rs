@@ -25,7 +25,7 @@ fn parse_args() -> clap::ArgMatches {
     .author("Osadchuk Aleksey <aleosd@gmail.com>")
     .about("Prints weather forecast to console")
     .arg(
-        Arg::with_name("config")
+        Arg::new("config")
             .short('c')
             .long("config")
             .value_name("FILE")
@@ -33,7 +33,7 @@ fn parse_args() -> clap::ArgMatches {
             .takes_value(true),
     )
     .arg(
-        Arg::with_name("log-level")
+        Arg::new("log-level")
             .short('l')
             .long("log-level")
             .takes_value(true)
@@ -41,21 +41,21 @@ fn parse_args() -> clap::ArgMatches {
             .about("Set log level"),
     )
     .arg(
-        Arg::with_name("day")
+        Arg::new("day")
             .short('d')
             .long("day")
             .conflicts_with("week")
             .about("Show daily forecast"),
     )
     .arg(
-        Arg::with_name("week")
+        Arg::new("week")
             .short('w')
             .long("week")
             .conflicts_with("day")
             .about("Show weekly forecast"),
     )
     .arg(
-        Arg::with_name("city")
+        Arg::new("city")
             .long("city")
             .takes_value(true)
             .about("Change default city_id"),
